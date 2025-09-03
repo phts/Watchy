@@ -90,7 +90,6 @@ public:
   void showAbout();
   void showBuzz();
   void showAccelerometer();
-  void showUpdateFW();
   void showSyncNTP();
   bool syncNTP();
   bool syncNTP(long gmt);
@@ -99,7 +98,6 @@ public:
   void setupWifi();
   bool connectWiFi();
   weatherData getWeatherData();
-  void updateFWBegin();
 
   void showWatchFace(bool partialRefresh);
   virtual void drawWatchFace(); // override this method for different watch
