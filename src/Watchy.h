@@ -83,7 +83,7 @@ public:
   void deepSleep();
   float getBatteryVoltage();
   uint8_t getBoardRevision();
-  void vibMotor(uint8_t intervalMs = 100, uint8_t length = 20);
+  void vibMotor(unsigned long intervalMs = 100, uint8_t length = 20);
 
   virtual void handleButtonPress();
   void showMenu(byte menuIndex, bool partialRefresh);

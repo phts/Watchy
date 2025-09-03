@@ -481,7 +481,7 @@ void Watchy::showBuzz()
   showMenu(menuIndex, false);
 }
 
-void Watchy::vibMotor(uint8_t intervalMs, uint8_t length)
+void Watchy::vibMotor(unsigned long intervalMs, uint8_t length)
 {
   pinMode(VIB_MOTOR_PIN, OUTPUT);
   bool motorOn = false;
