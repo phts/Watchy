@@ -1,4 +1,2 @@
 * text eol=lf
-*.bmp binary
-*.png binary
 *.bin binary
