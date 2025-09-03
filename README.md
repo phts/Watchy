@@ -1,17 +1,15 @@
-# Watchy - Fully Open Source E-Paper Watch
+# `Watchy` firmware
 
-![Watchy](https://watchy.sqfmi.com/img/watchy_render.png)
+My fork of [`Watchy` firmware](https://github.com/sqfmi/Watchy) with fixes and improvements.
 
-**Buy Watchy from [Mouser](https://www.mouser.com/ProductDetail/SQFMI/SQFMI-WATCHY-10?qs=DRkmTr78QARN9VSJRzqRxw%3D%3D), [The Pi Hut](https://thepihut.com/collections/sqfmi), and [Crowd Supply](https://www.crowdsupply.com/sqfmi/watchy)**
+## Install
 
-[**Watchy Case & Accessories**](https://shop.sqfmi.com)
+1. Install library `Watchy 1.4.15` with all its dependencies in Arduino IDE
+2. Go to `.../sketchbook-location/libraries`
+3. Remove `Watchy` and clone this fork instead:
 
-## Getting Started Guide
+   ```sh
+   git clone https://github.com/phts/Watchy.git
+   ```
 
-Follow the instructions here https://watchy.sqfmi.com/docs/getting-started
-
-### Have Fun! :)
-
-### Got Questions?
-
-Join our [Discord](https://discord.gg/ZXDegGV8E7)
+   Alternatively you can clone in a different place and create symlink.
