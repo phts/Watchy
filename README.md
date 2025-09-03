@@ -5,6 +5,7 @@ My fork of [`Watchy` firmware](https://github.com/sqfmi/Watchy) with fixes and i
 Some of them:
 
 - fix(ui): back button to exit to menu from "Set time" screen
+- feat(ui): light UI
 
 ## Install
 

@@ -23,6 +23,8 @@ RTC_DATA_ATTR bool USB_PLUGGED_IN = false;
 RTC_DATA_ATTR tmElements_t bootTime;
 RTC_DATA_ATTR uint32_t lastIPAddress;
 RTC_DATA_ATTR char lastSSID[30];
+RTC_DATA_ATTR int UI_BACKGROUND_COLOR = GxEPD_BLACK;
+RTC_DATA_ATTR int UI_FOREGROUND_COLOR = GxEPD_WHITE;
 
 void Watchy::init(String datetime)
 {
@@ -101,6 +103,11 @@ void Watchy::init(String datetime)
     // For some reason, seems to be enabled on first boot
     esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
     break;
+  }
+  if (settings.lightUI)
+  {
+    UI_BACKGROUND_COLOR = GxEPD_WHITE;
+    UI_FOREGROUND_COLOR = GxEPD_BLACK;
   }
   deepSleep();
 }
@@ -337,7 +344,7 @@ void Watchy::handleButtonPress()
 void Watchy::showMenu(byte menuIndex, bool partialRefresh)
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
 
   int16_t x1, y1;
@@ -355,13 +362,13 @@ void Watchy::showMenu(byte menuIndex, bool partialRefresh)
     if (i == menuIndex)
     {
       display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
-      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_WHITE);
-      display.setTextColor(GxEPD_BLACK);
+      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+      display.setTextColor(UI_BACKGROUND_COLOR);
       display.println(menuItems[i]);
     }
     else
     {
-      display.setTextColor(GxEPD_WHITE);
+      display.setTextColor(UI_FOREGROUND_COLOR);
       display.println(menuItems[i]);
     }
   }
@@ -375,7 +382,7 @@ void Watchy::showMenu(byte menuIndex, bool partialRefresh)
 void Watchy::showFastMenu(byte menuIndex)
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
 
   int16_t x1, y1;
@@ -393,13 +400,13 @@ void Watchy::showFastMenu(byte menuIndex)
     if (i == menuIndex)
     {
       display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
-      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_WHITE);
-      display.setTextColor(GxEPD_BLACK);
+      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+      display.setTextColor(UI_BACKGROUND_COLOR);
       display.println(menuItems[i]);
     }
     else
     {
-      display.setTextColor(GxEPD_WHITE);
+      display.setTextColor(UI_FOREGROUND_COLOR);
       display.println(menuItems[i]);
     }
   }
@@ -412,9 +419,9 @@ void Watchy::showFastMenu(byte menuIndex)
 void Watchy::showAbout()
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
   display.setCursor(0, 20);
 
   display.print("LibVer: ");
@@ -464,9 +471,9 @@ void Watchy::showAbout()
 void Watchy::showBuzz()
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
   display.setCursor(70, 80);
   display.println("Buzz!");
   display.display(false); // full refresh
@@ -593,14 +600,14 @@ void Watchy::setTime()
       }
     }
 
-    display.fillScreen(GxEPD_BLACK);
-    display.setTextColor(GxEPD_WHITE);
+    display.fillScreen(UI_BACKGROUND_COLOR);
+    display.setTextColor(UI_FOREGROUND_COLOR);
     display.setFont(&DSEG7_Classic_Bold_53);
 
     display.setCursor(5, 80);
     if (setIndex == SET_HOUR)
     { // blink hour digits
-      display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+      display.setTextColor(blink ? UI_FOREGROUND_COLOR : UI_BACKGROUND_COLOR);
     }
     if (hour < 10)
     {
@@ -608,13 +615,13 @@ void Watchy::setTime()
     }
     display.print(hour);
 
-    display.setTextColor(GxEPD_WHITE);
+    display.setTextColor(UI_FOREGROUND_COLOR);
     display.print(":");
 
     display.setCursor(108, 80);
     if (setIndex == SET_MINUTE)
     { // blink minute digits
-      display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+      display.setTextColor(blink ? UI_FOREGROUND_COLOR : UI_BACKGROUND_COLOR);
     }
     if (minute < 10)
     {
@@ -622,22 +629,22 @@ void Watchy::setTime()
     }
     display.print(minute);
 
-    display.setTextColor(GxEPD_WHITE);
+    display.setTextColor(UI_FOREGROUND_COLOR);
 
     display.setFont(&FreeMonoBold9pt7b);
     display.setCursor(45, 150);
     if (setIndex == SET_YEAR)
     { // blink minute digits
-      display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+      display.setTextColor(blink ? UI_FOREGROUND_COLOR : UI_BACKGROUND_COLOR);
     }
     display.print(2000 + year);
 
-    display.setTextColor(GxEPD_WHITE);
+    display.setTextColor(UI_FOREGROUND_COLOR);
     display.print("/");
 
     if (setIndex == SET_MONTH)
     { // blink minute digits
-      display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+      display.setTextColor(blink ? UI_FOREGROUND_COLOR : UI_BACKGROUND_COLOR);
     }
     if (month < 10)
     {
@@ -645,12 +652,12 @@ void Watchy::setTime()
     }
     display.print(month);
 
-    display.setTextColor(GxEPD_WHITE);
+    display.setTextColor(UI_FOREGROUND_COLOR);
     display.print("/");
 
     if (setIndex == SET_DAY)
     { // blink minute digits
-      display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+      display.setTextColor(blink ? UI_FOREGROUND_COLOR : UI_BACKGROUND_COLOR);
     }
     if (day < 10)
     {
@@ -680,9 +687,9 @@ void Watchy::setTime()
 void Watchy::showAccelerometer()
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
 
   Accel acc;
 
@@ -709,7 +716,7 @@ void Watchy::showAccelerometer()
       // Get acceleration data
       bool res = sensor.getAccel(acc);
       uint8_t direction = sensor.getDirection();
-      display.fillScreen(GxEPD_BLACK);
+      display.fillScreen(UI_BACKGROUND_COLOR);
       display.setCursor(0, 30);
       if (res == false)
       {
@@ -1048,9 +1055,9 @@ void Watchy::setupWifi()
   wifiManager.setTimeout(WIFI_AP_TIMEOUT);
   wifiManager.setAPCallback(_configModeCallback);
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
   if (!wifiManager.autoConnect(WIFI_AP_SSID))
   { // WiFi setup failed
     display.println("Setup failed &");
@@ -1078,9 +1085,9 @@ void Watchy::setupWifi()
 void Watchy::_configModeCallback(WiFiManager *myWiFiManager)
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
   display.setCursor(0, 30);
   display.println("Connect to");
   display.print("SSID: ");
@@ -1123,9 +1130,9 @@ bool Watchy::connectWiFi()
 void Watchy::showSyncNTP()
 {
   display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(UI_BACKGROUND_COLOR);
   display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
+  display.setTextColor(UI_FOREGROUND_COLOR);
   display.setCursor(0, 30);
   display.println("Syncing NTP... ");
   display.print("GMT offset: ");
