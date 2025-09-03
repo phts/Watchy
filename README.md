@@ -2,6 +2,10 @@
 
 My fork of [`Watchy` firmware](https://github.com/sqfmi/Watchy) with fixes and improvements.
 
+Some of them:
+
+- fix(ui): back button to exit to menu from "Set time" screen
+
 ## Install
 
 1. Install library `Watchy 1.4.15` with all its dependencies in Arduino IDE

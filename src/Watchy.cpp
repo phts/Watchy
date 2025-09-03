@@ -546,6 +546,10 @@ void Watchy::setTime()
       {
         setIndex--;
       }
+      else
+      {
+        break;
+      }
     }
 
     blink = 1 - blink;
