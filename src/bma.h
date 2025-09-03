@@ -8,19 +8,21 @@
 
 #include "bma423.h"
 
-enum {
-  DIRECTION_TOP_EDGE    = 0,
+enum
+{
+  DIRECTION_TOP_EDGE = 0,
   DIRECTION_BOTTOM_EDGE = 1,
-  DIRECTION_LEFT_EDGE   = 2,
-  DIRECTION_RIGHT_EDGE  = 3,
-  DIRECTION_DISP_UP     = 4,
-  DIRECTION_DISP_DOWN   = 5
+  DIRECTION_LEFT_EDGE = 2,
+  DIRECTION_RIGHT_EDGE = 3,
+  DIRECTION_DISP_UP = 4,
+  DIRECTION_DISP_DOWN = 5
 };
 
 typedef struct bma4_accel Accel;
 typedef struct bma4_accel_config Acfg;
 
-class BMA423 {
+class BMA423
+{
 
 public:
   BMA423();

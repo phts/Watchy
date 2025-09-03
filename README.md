@@ -7,6 +7,7 @@
 [**Watchy Case & Accessories**](https://shop.sqfmi.com)
 
 ## Getting Started Guide
+
 Follow the instructions here https://watchy.sqfmi.com/docs/getting-started
 
 ### Have Fun! :)
@@ -14,5 +15,3 @@ Follow the instructions here https://watchy.sqfmi.com/docs/getting-started
 ### Got Questions?
 
 Join our [Discord](https://discord.gg/ZXDegGV8E7)
-
-

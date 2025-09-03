@@ -4,10 +4,11 @@
 #include <Watchy.h>
 #include "tetris.h"
 
-class WatchyTetris : public Watchy{
-    public:
-        using Watchy::Watchy;
-        void drawWatchFace();
+class WatchyTetris : public Watchy
+{
+public:
+  using Watchy::Watchy;
+  void drawWatchFace();
 };
 
 #endif

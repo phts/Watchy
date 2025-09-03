@@ -4,10 +4,12 @@
 #include <Watchy.h>
 #include "macpaint.h"
 
-class WatchyMacPaint : public Watchy{
-    using Watchy::Watchy;
-    public:
-        void drawWatchFace();
+class WatchyMacPaint : public Watchy
+{
+  using Watchy::Watchy;
+
+public:
+  void drawWatchFace();
 };
 
 #endif

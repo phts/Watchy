@@ -17,25 +17,26 @@
 #include "config.h"
 #include "esp_chip_info.h"
 #ifdef ARDUINO_ESP32S3_DEV
-  #include "Watchy32KRTC.h"
-  #include "soc/rtc.h"
-  #include "soc/rtc_io_reg.h"
-  #include "soc/sens_reg.h"
-  #include "esp_sleep.h"
-  #include "rom/rtc.h"
-  #include "soc/soc.h"
-  #include "soc/rtc_cntl_reg.h"
-  #include "time.h"
-  #include "esp_sntp.h"
-  #include "hal/rtc_io_types.h"
-  #include "driver/rtc_io.h"
-  #define uS_TO_S_FACTOR 1000000ULL  //Conversion factor for micro seconds to seconds
-  #define ADC_VOLTAGE_DIVIDER ((360.0f+100.0f)/360.0f) //Voltage divider at battery ADC  
+#include "Watchy32KRTC.h"
+#include "soc/rtc.h"
+#include "soc/rtc_io_reg.h"
+#include "soc/sens_reg.h"
+#include "esp_sleep.h"
+#include "rom/rtc.h"
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
+#include "time.h"
+#include "esp_sntp.h"
+#include "hal/rtc_io_types.h"
+#include "driver/rtc_io.h"
+#define uS_TO_S_FACTOR 1000000ULL                        // Conversion factor for micro seconds to seconds
+#define ADC_VOLTAGE_DIVIDER ((360.0f + 100.0f) / 360.0f) // Voltage divider at battery ADC
 #else
-  #include "WatchyRTC.h"
+#include "WatchyRTC.h"
 #endif
 
-typedef struct weatherData {
+typedef struct weatherData
+{
   int8_t temperature;
   int16_t weatherConditionCode;
   bool isMetric;
@@ -45,7 +46,8 @@ typedef struct weatherData {
   tmElements_t sunset;
 } weatherData;
 
-typedef struct watchySettings {
+typedef struct watchySettings
+{
   // Weather Settings
   String cityID;
   String lat;
@@ -62,13 +64,14 @@ typedef struct watchySettings {
   bool vibrateOClock;
 } watchySettings;
 
-class Watchy {
+class Watchy
+{
 public:
-  #ifdef ARDUINO_ESP32S3_DEV
-   static Watchy32KRTC RTC;
-  #else
-   static WatchyRTC RTC;
-  #endif
+#ifdef ARDUINO_ESP32S3_DEV
+  static Watchy32KRTC RTC;
+#else
+  static WatchyRTC RTC;
+#endif
   static GxEPD2_BW<WatchyDisplay, WatchyDisplay::HEIGHT> display;
   tmElements_t currentTime;
   watchySettings settings;
@@ -110,7 +113,7 @@ private:
   static uint16_t _writeRegister(uint8_t address, uint8_t reg, uint8_t *data,
                                  uint16_t len);
   weatherData _getWeatherData(String cityID, String lat, String lon, String units, String lang,
-                             String url, String apiKey, uint8_t updateInterval);                                 
+                              String url, String apiKey, uint8_t updateInterval);
 };
 
 extern RTC_DATA_ATTR int guiState;

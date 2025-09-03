@@ -4,10 +4,12 @@
 #include <Watchy.h>
 #include "mario.h"
 
-class WatchyMario: public Watchy{
-    using Watchy::Watchy;
-    public:
-        void drawWatchFace();
+class WatchyMario : public Watchy
+{
+  using Watchy::Watchy;
+
+public:
+  void drawWatchFace();
 };
 
 #endif

@@ -1,35 +1,37 @@
 #include "BLE.h"
 
-#define SERVICE_UUID_ESPOTA    "cd77498e-1ac8-48b6-aba8-4161c7342fce"
+#define SERVICE_UUID_ESPOTA "cd77498e-1ac8-48b6-aba8-4161c7342fce"
 #define CHARACTERISTIC_UUID_ID "cd77498f-1ac8-48b6-aba8-4161c7342fce"
 
-#define SERVICE_UUID_OTA               "86b12865-4b70-4893-8ce6-9864fc00374d"
-#define CHARACTERISTIC_UUID_FW         "86b12866-4b70-4893-8ce6-9864fc00374d"
+#define SERVICE_UUID_OTA "86b12865-4b70-4893-8ce6-9864fc00374d"
+#define CHARACTERISTIC_UUID_FW "86b12866-4b70-4893-8ce6-9864fc00374d"
 #define CHARACTERISTIC_UUID_HW_VERSION "86b12867-4b70-4893-8ce6-9864fc00374d"
-#define CHARACTERISTIC_UUID_WATCHFACE_NAME                                     \
+#define CHARACTERISTIC_UUID_WATCHFACE_NAME \
   "86b12868-4b70-4893-8ce6-9864fc00374d"
 
-#define FULL_PACKET         512
+#define FULL_PACKET 512
 #define CHARPOS_UPDATE_FLAG 5
 
-#define STATUS_CONNECTED    0
+#define STATUS_CONNECTED 0
 #define STATUS_DISCONNECTED 4
-#define STATUS_UPDATING     1
-#define STATUS_READY        2
+#define STATUS_UPDATING 1
+#define STATUS_READY 2
 
 esp_ota_handle_t otaHandler = 0;
 
-int status        = -1;
+int status = -1;
 int bytesReceived = 0;
-bool updateFlag   = false;
+bool updateFlag = false;
 
-class BLECustomServerCallbacks : public BLEServerCallbacks {
+class BLECustomServerCallbacks : public BLEServerCallbacks
+{
   void onConnect(BLEServer *pServer) { status = STATUS_CONNECTED; };
 
   void onDisconnect(BLEServer *pServer) { status = STATUS_DISCONNECTED; }
 };
 
-class otaCallback : public BLECharacteristicCallbacks {
+class otaCallback : public BLECharacteristicCallbacks
+{
 public:
   otaCallback(BLE *ble) { _p_ble = ble; }
   BLE *_p_ble;
@@ -37,26 +39,34 @@ public:
   void onWrite(BLECharacteristic *pCharacteristic);
 };
 
-void otaCallback::onWrite(BLECharacteristic *pCharacteristic) {
+void otaCallback::onWrite(BLECharacteristic *pCharacteristic)
+{
   auto rxData = pCharacteristic->getValue();
-  if (!updateFlag) { // If it's the first packet of OTA since bootup, begin OTA
+  if (!updateFlag)
+  { // If it's the first packet of OTA since bootup, begin OTA
     // Serial.println("Begin FW Update");
     esp_ota_begin(esp_ota_get_next_update_partition(NULL), OTA_SIZE_UNKNOWN,
                   &otaHandler);
     updateFlag = true;
-    status     = STATUS_UPDATING;
+    status = STATUS_UPDATING;
   }
-  if (_p_ble != NULL) {
-    if (rxData.length() > 0) {
+  if (_p_ble != NULL)
+  {
+    if (rxData.length() > 0)
+    {
       esp_ota_write(otaHandler, rxData.c_str(), rxData.length());
       bytesReceived = bytesReceived + rxData.length();
-      if (rxData.length() != FULL_PACKET) {
+      if (rxData.length() != FULL_PACKET)
+      {
         esp_ota_end(otaHandler);
         // Serial.println("End FW Update");
         if (ESP_OK == esp_ota_set_boot_partition(
-                          esp_ota_get_next_update_partition(NULL))) {
+                          esp_ota_get_next_update_partition(NULL)))
+        {
           status = STATUS_READY;
-        } else {
+        }
+        else
+        {
           // Serial.println("Upload Error");
         }
       }
@@ -79,7 +89,8 @@ BLE::~BLE(void) {}
 
 //
 // begin
-bool BLE::begin(const char *localName = "Watchy BLE OTA") {
+bool BLE::begin(const char *localName = "Watchy BLE OTA")
+{
   // Create the BLE Device
   BLEDevice::init(localName);
 
@@ -89,7 +100,7 @@ bool BLE::begin(const char *localName = "Watchy BLE OTA") {
 
   // Create the BLE Service
   pESPOTAService = pServer->createService(SERVICE_UUID_ESPOTA);
-  pService       = pServer->createService(SERVICE_UUID_OTA);
+  pService = pServer->createService(SERVICE_UUID_OTA);
 
   // Create a BLE Characteristic
   pESPOTAIdCharacteristic = pESPOTAService->createCharacteristic(

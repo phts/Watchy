@@ -6,14 +6,15 @@
 #include <DS3232RTC.h>
 #include <Rtc_Pcf8563.h>
 
-#define DS3231          1
-#define PCF8563         2
-#define RTC_DS_ADDR     0x68
-#define RTC_PCF_ADDR    0x51
-#define YEAR_OFFSET_DS  1970
+#define DS3231 1
+#define PCF8563 2
+#define RTC_DS_ADDR 0x68
+#define RTC_PCF_ADDR 0x51
+#define YEAR_OFFSET_DS 1970
 #define YEAR_OFFSET_PCF 2000
 
-class WatchyRTC {
+class WatchyRTC
+{
 public:
   DS3232RTC rtc_ds;
   Rtc_Pcf8563 rtc_pcf;

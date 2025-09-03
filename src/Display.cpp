@@ -16,40 +16,45 @@
 
 #include "Display.h"
 
-RTC_DATA_ATTR bool displayFullInit       = true;
+RTC_DATA_ATTR bool displayFullInit = true;
 
-void WatchyDisplay::busyCallback(const void *) {
+void WatchyDisplay::busyCallback(const void *)
+{
   gpio_wakeup_enable((gpio_num_t)DISPLAY_BUSY, GPIO_INTR_LOW_LEVEL);
   esp_sleep_enable_gpio_wakeup();
   esp_light_sleep_start();
 }
 
-WatchyDisplay::WatchyDisplay() :
-  GxEPD2_EPD(DISPLAY_CS, DISPLAY_DC, DISPLAY_RES, DISPLAY_BUSY, HIGH, 10000000, WIDTH, HEIGHT, panel, hasColor, hasPartialUpdate, hasFastPartialUpdate)
+WatchyDisplay::WatchyDisplay() : GxEPD2_EPD(DISPLAY_CS, DISPLAY_DC, DISPLAY_RES, DISPLAY_BUSY, HIGH, 10000000, WIDTH, HEIGHT, panel, hasColor, hasPartialUpdate, hasFastPartialUpdate)
 {
-  // Setup callback and SPI by default
-  #ifdef ARDUINO_ESP32S3_DEV
-  SPI.begin(WATCHY_V3_SCK,WATCHY_V3_MISO,WATCHY_V3_MOSI,WATCHY_V3_SS);
-  #endif
+// Setup callback and SPI by default
+#ifdef ARDUINO_ESP32S3_DEV
+  SPI.begin(WATCHY_V3_SCK, WATCHY_V3_MISO, WATCHY_V3_MOSI, WATCHY_V3_SS);
+#endif
   selectSPI(SPI, SPISettings(20000000, MSBFIRST, SPI_MODE0));
   setBusyCallback(busyCallback);
 }
 
-void WatchyDisplay::initWatchy() {
+void WatchyDisplay::initWatchy()
+{
   // Watchy default initialization
   init(0, displayFullInit, 2, true);
 }
 
-void WatchyDisplay::asyncPowerOn() {
+void WatchyDisplay::asyncPowerOn()
+{
   // This is expensive if unused
-  if (!waitingPowerOn && !_hibernating) {
+  if (!waitingPowerOn && !_hibernating)
+  {
     _InitDisplay();
     _PowerOnAsync();
   }
 }
 
-void WatchyDisplay::setDarkBorder(bool dark) {
-  if (_hibernating) return;
+void WatchyDisplay::setDarkBorder(bool dark)
+{
+  if (_hibernating)
+    return;
   darkBorder = dark;
   _startTransfer();
   _transferCommand(0x3C); // BorderWavefrom
@@ -66,15 +71,18 @@ void WatchyDisplay::clearScreen(uint8_t value)
 
 void WatchyDisplay::writeScreenBuffer(uint8_t value)
 {
-  if (!_using_partial_mode) _Init_Part();
-  if (_initial_write) _writeScreenBuffer(0x26, value); // set previous
-  _writeScreenBuffer(0x24, value); // set current
-  _initial_write = false; // initial full screen buffer clean done
+  if (!_using_partial_mode)
+    _Init_Part();
+  if (_initial_write)
+    _writeScreenBuffer(0x26, value); // set previous
+  _writeScreenBuffer(0x24, value);   // set current
+  _initial_write = false;            // initial full screen buffer clean done
 }
 
 void WatchyDisplay::writeScreenBufferAgain(uint8_t value)
 {
-  if (!_using_partial_mode) _Init_Part();
+  if (!_using_partial_mode)
+    _Init_Part();
   _writeScreenBuffer(0x24, value); // set current
 }
 
@@ -107,23 +115,26 @@ void WatchyDisplay::writeImageAgain(const uint8_t bitmap[], int16_t x, int16_t y
 
 void WatchyDisplay::_writeImage(uint8_t command, const uint8_t bitmap[], int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
-  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
+  if (_initial_write)
+    writeScreenBuffer(); // initial full screen buffer clean
 #if defined(ESP8266) || defined(ESP32)
   yield(); // avoid wdt
 #endif
-  int16_t wb = (w + 7) / 8; // width bytes, bitmaps are padded
-  x -= x % 8; // byte boundary
-  w = wb * 8; // byte boundary
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x; // limit
+  int16_t wb = (w + 7) / 8;                                       // width bytes, bitmaps are padded
+  x -= x % 8;                                                     // byte boundary
+  w = wb * 8;                                                     // byte boundary
+  int16_t x1 = x < 0 ? 0 : x;                                     // limit
+  int16_t y1 = y < 0 ? 0 : y;                                     // limit
+  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x;   // limit
   int16_t h1 = y + h < int16_t(HEIGHT) ? h : int16_t(HEIGHT) - y; // limit
   int16_t dx = x1 - x;
   int16_t dy = y1 - y;
   w1 -= dx;
   h1 -= dy;
-  if ((w1 <= 0) || (h1 <= 0)) return;
-  if (!_using_partial_mode) _Init_Part();
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _startTransfer();
   _transferCommand(command);
@@ -146,7 +157,8 @@ void WatchyDisplay::_writeImage(uint8_t command, const uint8_t bitmap[], int16_t
       {
         data = bitmap[idx];
       }
-      if (invert) data = ~data;
+      if (invert)
+        data = ~data;
       _transfer(data);
     }
   }
@@ -157,43 +169,49 @@ void WatchyDisplay::_writeImage(uint8_t command, const uint8_t bitmap[], int16_t
 }
 
 void WatchyDisplay::writeImagePart(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-                                    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+                                   int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   _writeImagePart(0x24, bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
 }
 
 void WatchyDisplay::writeImagePartAgain(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+                                        int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   _writeImagePart(0x24, bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
 }
 
 void WatchyDisplay::_writeImagePart(uint8_t command, const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-                                     int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+                                    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
-  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
+  if (_initial_write)
+    writeScreenBuffer(); // initial full screen buffer clean
 #if defined(ESP8266) || defined(ESP32)
   yield(); // avoid wdt
 #endif
-  if ((w_bitmap < 0) || (h_bitmap < 0) || (w < 0) || (h < 0)) return;
-  if ((x_part < 0) || (x_part >= w_bitmap)) return;
-  if ((y_part < 0) || (y_part >= h_bitmap)) return;
-  int16_t wb_bitmap = (w_bitmap + 7) / 8; // width bytes, bitmaps are padded
-  x_part -= x_part % 8; // byte boundary
-  w = w_bitmap - x_part < w ? w_bitmap - x_part : w; // limit
-  h = h_bitmap - y_part < h ? h_bitmap - y_part : h; // limit
-  x -= x % 8; // byte boundary
-  w = 8 * ((w + 7) / 8); // byte boundary, bitmaps are padded
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x; // limit
+  if ((w_bitmap < 0) || (h_bitmap < 0) || (w < 0) || (h < 0))
+    return;
+  if ((x_part < 0) || (x_part >= w_bitmap))
+    return;
+  if ((y_part < 0) || (y_part >= h_bitmap))
+    return;
+  int16_t wb_bitmap = (w_bitmap + 7) / 8;                         // width bytes, bitmaps are padded
+  x_part -= x_part % 8;                                           // byte boundary
+  w = w_bitmap - x_part < w ? w_bitmap - x_part : w;              // limit
+  h = h_bitmap - y_part < h ? h_bitmap - y_part : h;              // limit
+  x -= x % 8;                                                     // byte boundary
+  w = 8 * ((w + 7) / 8);                                          // byte boundary, bitmaps are padded
+  int16_t x1 = x < 0 ? 0 : x;                                     // limit
+  int16_t y1 = y < 0 ? 0 : y;                                     // limit
+  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x;   // limit
   int16_t h1 = y + h < int16_t(HEIGHT) ? h : int16_t(HEIGHT) - y; // limit
   int16_t dx = x1 - x;
   int16_t dy = y1 - y;
   w1 -= dx;
   h1 -= dy;
-  if ((w1 <= 0) || (h1 <= 0)) return;
-  if (!_using_partial_mode) _Init_Part();
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _startTransfer();
   _transferCommand(command);
@@ -216,7 +234,8 @@ void WatchyDisplay::_writeImagePart(uint8_t command, const uint8_t bitmap[], int
       {
         data = bitmap[idx];
       }
-      if (invert) data = ~data;
+      if (invert)
+        data = ~data;
       _transfer(data);
     }
   }
@@ -226,7 +245,7 @@ void WatchyDisplay::_writeImagePart(uint8_t command, const uint8_t bitmap[], int
 #endif
 }
 
-void WatchyDisplay::writeImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::writeImage(const uint8_t *black, const uint8_t *color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -234,8 +253,8 @@ void WatchyDisplay::writeImage(const uint8_t* black, const uint8_t* color, int16
   }
 }
 
-void WatchyDisplay::writeImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-                                    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::writeImagePart(const uint8_t *black, const uint8_t *color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                   int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -243,7 +262,7 @@ void WatchyDisplay::writeImagePart(const uint8_t* black, const uint8_t* color, i
   }
 }
 
-void WatchyDisplay::writeNative(const uint8_t* data1, const uint8_t* data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::writeNative(const uint8_t *data1, const uint8_t *data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (data1)
   {
@@ -259,14 +278,14 @@ void WatchyDisplay::drawImage(const uint8_t bitmap[], int16_t x, int16_t y, int1
 }
 
 void WatchyDisplay::drawImagePart(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-                                   int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+                                  int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   writeImagePart(bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
   refresh(x, y, w, h);
   writeImagePartAgain(bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
 }
 
-void WatchyDisplay::drawImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::drawImage(const uint8_t *black, const uint8_t *color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -274,8 +293,8 @@ void WatchyDisplay::drawImage(const uint8_t* black, const uint8_t* color, int16_
   }
 }
 
-void WatchyDisplay::drawImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-                                   int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::drawImagePart(const uint8_t *black, const uint8_t *color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                  int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -283,7 +302,7 @@ void WatchyDisplay::drawImagePart(const uint8_t* black, const uint8_t* color, in
   }
 }
 
-void WatchyDisplay::drawNative(const uint8_t* data1, const uint8_t* data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void WatchyDisplay::drawNative(const uint8_t *data1, const uint8_t *data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (data1)
   {
@@ -293,10 +312,12 @@ void WatchyDisplay::drawNative(const uint8_t* data1, const uint8_t* data2, int16
 
 void WatchyDisplay::refresh(bool partial_update_mode)
 {
-  if (partial_update_mode) refresh(0, 0, WIDTH, HEIGHT);
+  if (partial_update_mode)
+    refresh(0, 0, WIDTH, HEIGHT);
   else
   {
-    if (_using_partial_mode) _Init_Full();
+    if (_using_partial_mode)
+      _Init_Full();
     _Update_Full();
     _initial_refresh = false; // initial full update done
   }
@@ -304,20 +325,24 @@ void WatchyDisplay::refresh(bool partial_update_mode)
 
 void WatchyDisplay::refresh(int16_t x, int16_t y, int16_t w, int16_t h)
 {
-  if (_initial_refresh) return refresh(false); // initial update needs be full update
+  if (_initial_refresh)
+    return refresh(false); // initial update needs be full update
   // intersection with screen
-  int16_t w1 = x < 0 ? w + x : w; // reduce
-  int16_t h1 = y < 0 ? h + y : h; // reduce
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  w1 = x1 + w1 < int16_t(WIDTH) ? w1 : int16_t(WIDTH) - x1; // limit
+  int16_t w1 = x < 0 ? w + x : w;                             // reduce
+  int16_t h1 = y < 0 ? h + y : h;                             // reduce
+  int16_t x1 = x < 0 ? 0 : x;                                 // limit
+  int16_t y1 = y < 0 ? 0 : y;                                 // limit
+  w1 = x1 + w1 < int16_t(WIDTH) ? w1 : int16_t(WIDTH) - x1;   // limit
   h1 = y1 + h1 < int16_t(HEIGHT) ? h1 : int16_t(HEIGHT) - y1; // limit
-  if ((w1 <= 0) || (h1 <= 0)) return; 
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
   // make x1, w1 multiple of 8
   w1 += x1 % 8;
-  if (w1 % 8 > 0) w1 += 8 - w1 % 8;
+  if (w1 % 8 > 0)
+    w1 += 8 - w1 % 8;
   x1 -= x1 % 8;
-  if (!_using_partial_mode) _Init_Part();
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _Update_Part();
 }
@@ -342,7 +367,7 @@ void WatchyDisplay::_setPartialRamArea(uint16_t x, uint16_t y, uint16_t w, uint1
 {
   _startTransfer();
   _transferCommand(0x11); // set ram entry mode
-  _transfer(0x03);    // x increase, y increase : normal mode
+  _transfer(0x03);        // x increase, y increase : normal mode
   _transferCommand(0x44);
   _transfer(x / 8);
   _transfer((x + w - 1) / 8);
@@ -411,7 +436,8 @@ void WatchyDisplay::_PowerOff()
 
 void WatchyDisplay::_InitDisplay()
 {
-  if (_hibernating) _reset();
+  if (_hibernating)
+    _reset();
 
   // No need to soft reset, the Display goes to same state after hard reset
   // _writeCommand(0x12); // soft reset
@@ -423,7 +449,8 @@ void WatchyDisplay::_InitDisplay()
   _transfer(0x00);
   _transfer(0x00);
 
-  if (reduceBoosterTime) {
+  if (reduceBoosterTime)
+  {
     // SSD1675B controller datasheet
     _transferCommand(0x0C); // BOOSTER_SOFT_START_CONTROL
     // Set the driving strength of GDR for all phases to maximun 0b111 -> 0xF
@@ -446,7 +473,8 @@ void WatchyDisplay::_InitDisplay()
 void WatchyDisplay::_reset()
 {
   // Call default method if not configured the same way
-  if (_rst < 0 || !_pulldown_rst_mode) {
+  if (_rst < 0 || !_pulldown_rst_mode)
+  {
     GxEPD2_EPD::_reset();
     return;
   }
@@ -498,7 +526,9 @@ void WatchyDisplay::_Update_Part()
 
 void WatchyDisplay::_transferCommand(uint8_t value)
 {
-  if (_dc >= 0) digitalWrite(_dc, LOW);
+  if (_dc >= 0)
+    digitalWrite(_dc, LOW);
   SPI.transfer(value);
-  if (_dc >= 0) digitalWrite(_dc, HIGH);
+  if (_dc >= 0)
+    digitalWrite(_dc, HIGH);
 }

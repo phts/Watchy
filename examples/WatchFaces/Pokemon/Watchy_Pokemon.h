@@ -4,10 +4,12 @@
 #include <Watchy.h>
 #include "pokemon.h"
 
-class WatchyPokemon : public Watchy{
-    using Watchy::Watchy;
-    public:
-        void drawWatchFace();
+class WatchyPokemon : public Watchy
+{
+  using Watchy::Watchy;
+
+public:
+  void drawWatchFace();
 };
 
 #endif

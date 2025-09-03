@@ -14,7 +14,8 @@
 
 class BLE;
 
-class BLE {
+class BLE
+{
 public:
   BLE(void);
   ~BLE(void);
@@ -28,12 +29,12 @@ private:
 
   BLEServer *pServer = NULL;
 
-  BLEService *pESPOTAService                 = NULL;
+  BLEService *pESPOTAService = NULL;
   BLECharacteristic *pESPOTAIdCharacteristic = NULL;
 
-  BLEService *pService                            = NULL;
-  BLECharacteristic *pVersionCharacteristic       = NULL;
-  BLECharacteristic *pOtaCharacteristic           = NULL;
+  BLEService *pService = NULL;
+  BLECharacteristic *pVersionCharacteristic = NULL;
+  BLECharacteristic *pOtaCharacteristic = NULL;
   BLECharacteristic *pWatchFaceNameCharacteristic = NULL;
 };
 
