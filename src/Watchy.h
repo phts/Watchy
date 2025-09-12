@@ -12,7 +12,6 @@
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include "DSEG7_Classic_Bold_53.h"
 #include "Display.h"
-#include "BLE.h"
 #include "bma.h"
 #include "config.h"
 #include "esp_chip_info.h"
@@ -88,7 +87,7 @@ public:
   virtual void handleButtonPress();
   void showMenu(byte menuIndex, bool partialRefresh);
   void showFastMenu(byte menuIndex);
-  void showAbout();
+  virtual void showAbout();
   void showBuzz();
   void showAccelerometer();
   void showSyncNTP();
