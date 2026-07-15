@@ -1,4 +1,5 @@
 #include "Watchy.h"
+#include "screens/SetTimeZoneScreen.h"
 
 #ifdef ARDUINO_ESP32S3_DEV
 Watchy32KRTC Watchy::RTC;
@@ -25,6 +26,8 @@ RTC_DATA_ATTR uint32_t lastIPAddress;
 RTC_DATA_ATTR char lastSSID[30];
 RTC_DATA_ATTR int UI_BACKGROUND_COLOR = GxEPD_BLACK;
 RTC_DATA_ATTR int UI_FOREGROUND_COLOR = GxEPD_WHITE;
+
+SetTimeZoneScreen setTimeZoneScreen(&Watchy::display);
 
 void Watchy::init(String datetime)
 {
@@ -167,23 +170,27 @@ void Watchy::handleButtonPress()
     { // if already in menu, then select menu item
       switch (menuIndex)
       {
-      case 0:
+      case Watchy::MENU_ITEM_INDEX_ABOUT:
         showAbout();
         break;
-      case 1:
+      case Watchy::MENU_ITEM_INDEX_BUZZ:
         showBuzz();
         break;
-      case 2:
+      case Watchy::MENU_ITEM_INDEX_ACCELEROMETER:
         showAccelerometer();
         break;
-      case 3:
+      case Watchy::MENU_ITEM_INDEX_TIME:
         setTime();
         break;
-      case 4:
+      case Watchy::MENU_ITEM_INDEX_WIFI:
         setupWifi();
         break;
-      case 5:
+      case Watchy::MENU_ITEM_INDEX_SYNC:
         showSyncNTP();
+        break;
+      case Watchy::MENU_ITEM_INDEX_TZ:
+        guiState = APP_SCREEN_STATE;
+        setTimeZoneScreen.open();
         break;
       default:
         break;
@@ -210,6 +217,14 @@ void Watchy::handleButtonPress()
     {
       return;
     }
+    else if (setTimeZoneScreen.isActive())
+    {
+      setTimeZoneScreen.onPressBack();
+      if (!setTimeZoneScreen.isActive())
+      {
+        showMenu(menuIndex, false);
+      }
+    }
   }
   // Up Button
   else if (wakeupBit & UP_BTN_MASK)
@@ -227,6 +242,10 @@ void Watchy::handleButtonPress()
     {
       return;
     }
+    else if (setTimeZoneScreen.isActive())
+    {
+      setTimeZoneScreen.onPressUp();
+    }
   }
   // Down Button
   else if (wakeupBit & DOWN_BTN_MASK)
@@ -243,6 +262,10 @@ void Watchy::handleButtonPress()
     else if (guiState == WATCHFACE_STATE)
     {
       return;
+    }
+    else if (setTimeZoneScreen.isActive())
+    {
+      setTimeZoneScreen.onPressDown();
     }
   }
 
@@ -269,23 +292,27 @@ void Watchy::handleButtonPress()
         { // if already in menu, then select menu item
           switch (menuIndex)
           {
-          case 0:
+          case Watchy::MENU_ITEM_INDEX_ABOUT:
             showAbout();
             break;
-          case 1:
+          case Watchy::MENU_ITEM_INDEX_BUZZ:
             showBuzz();
             break;
-          case 2:
+          case Watchy::MENU_ITEM_INDEX_ACCELEROMETER:
             showAccelerometer();
             break;
-          case 3:
+          case Watchy::MENU_ITEM_INDEX_TIME:
             setTime();
             break;
-          case 4:
+          case Watchy::MENU_ITEM_INDEX_WIFI:
             setupWifi();
             break;
-          case 5:
+          case Watchy::MENU_ITEM_INDEX_SYNC:
             showSyncNTP();
+            break;
+          case Watchy::MENU_ITEM_INDEX_TZ:
+            guiState = APP_SCREEN_STATE;
+            setTimeZoneScreen.open();
             break;
           default:
             break;
@@ -321,7 +348,11 @@ void Watchy::handleButtonPress()
           {
             menuIndex = MENU_LENGTH - 1;
           }
-          showFastMenu(menuIndex);
+          showMenu(menuIndex, false, true);
+        }
+        else if (setTimeZoneScreen.isActive())
+        {
+          setTimeZoneScreen.onPressUp();
         }
       }
       else if (digitalRead(DOWN_BTN_PIN) == ACTIVE_LOW)
@@ -334,14 +365,18 @@ void Watchy::handleButtonPress()
           {
             menuIndex = 0;
           }
-          showFastMenu(menuIndex);
+          showMenu(menuIndex, false, true);
+        }
+        else if (setTimeZoneScreen.isActive())
+        {
+          setTimeZoneScreen.onPressDown();
         }
       }
     }
   }
 }
 
-void Watchy::showMenu(byte menuIndex, bool partialRefresh)
+void Watchy::showMenu(byte menuIndex, bool partialRefresh, bool fastMenu)
 {
   display.setFullWindow();
   display.fillScreen(UI_BACKGROUND_COLOR);
@@ -354,7 +389,7 @@ void Watchy::showMenu(byte menuIndex, bool partialRefresh)
   const char *menuItems[] = {
       "About Watchy", "Vibrate Motor", "Show Accelerometer",
       "Set Time", "Setup WiFi",
-      "Sync NTP"};
+      "Sync NTP", "Set Time Zone"};
   for (int i = 0; i < MENU_LENGTH; i++)
   {
     yPos = MENU_HEIGHT + (MENU_HEIGHT * i);
@@ -373,47 +408,16 @@ void Watchy::showMenu(byte menuIndex, bool partialRefresh)
     }
   }
 
-  display.display(partialRefresh);
-
   guiState = MAIN_MENU_STATE;
-  alreadyInMenu = false;
-}
-
-void Watchy::showFastMenu(byte menuIndex)
-{
-  display.setFullWindow();
-  display.fillScreen(UI_BACKGROUND_COLOR);
-  display.setFont(&FreeMonoBold9pt7b);
-
-  int16_t x1, y1;
-  uint16_t w, h;
-  int16_t yPos;
-
-  const char *menuItems[] = {
-      "About Watchy", "Vibrate Motor", "Show Accelerometer",
-      "Set Time", "Setup WiFi",
-      "Sync NTP"};
-  for (int i = 0; i < MENU_LENGTH; i++)
+  if (fastMenu)
   {
-    yPos = MENU_HEIGHT + (MENU_HEIGHT * i);
-    display.setCursor(0, yPos);
-    if (i == menuIndex)
-    {
-      display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
-      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
-      display.setTextColor(UI_BACKGROUND_COLOR);
-      display.println(menuItems[i]);
-    }
-    else
-    {
-      display.setTextColor(UI_FOREGROUND_COLOR);
-      display.println(menuItems[i]);
-    }
+    display.display(true);
   }
-
-  display.display(true);
-
-  guiState = MAIN_MENU_STATE;
+  else
+  {
+    display.display(partialRefresh);
+    alreadyInMenu = false;
+  }
 }
 
 void Watchy::showAbout()

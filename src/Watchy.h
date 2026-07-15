@@ -86,8 +86,7 @@ public:
   void vibMotor(unsigned long intervalMs = 100, uint8_t length = 20);
 
   virtual void handleButtonPress();
-  void showMenu(byte menuIndex, bool partialRefresh);
-  void showFastMenu(byte menuIndex);
+  void showMenu(byte menuIndex, bool partialRefresh, bool fastMenu = false);
   void showAbout();
   void showBuzz();
   void showAccelerometer();
@@ -105,6 +104,14 @@ public:
                                 // faces
 
 private:
+  static const byte MENU_ITEM_INDEX_ABOUT = 0;
+  static const byte MENU_ITEM_INDEX_BUZZ = 1;
+  static const byte MENU_ITEM_INDEX_ACCELEROMETER = 2;
+  static const byte MENU_ITEM_INDEX_TIME = 3;
+  static const byte MENU_ITEM_INDEX_WIFI = 4;
+  static const byte MENU_ITEM_INDEX_SYNC = 5;
+  static const byte MENU_ITEM_INDEX_TZ = 6;
+
   void _bmaConfig();
   static void _configModeCallback(WiFiManager *myWiFiManager);
   static uint16_t _readRegister(uint8_t address, uint8_t reg, uint8_t *data,
