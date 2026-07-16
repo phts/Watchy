@@ -11,22 +11,6 @@ WatchyRTC Watchy::RTC;
 GxEPD2_BW<WatchyDisplay, WatchyDisplay::HEIGHT> Watchy::display(
     WatchyDisplay{});
 
-RTC_DATA_ATTR int guiState;
-RTC_DATA_ATTR int menuIndex;
-RTC_DATA_ATTR BMA423 sensor;
-RTC_DATA_ATTR bool WIFI_CONFIGURED;
-RTC_DATA_ATTR bool BLE_CONFIGURED;
-RTC_DATA_ATTR weatherData currentWeather;
-RTC_DATA_ATTR int weatherIntervalCounter = -1;
-RTC_DATA_ATTR long gmtOffset = 0;
-RTC_DATA_ATTR bool alreadyInMenu = true;
-RTC_DATA_ATTR bool USB_PLUGGED_IN = false;
-RTC_DATA_ATTR tmElements_t bootTime;
-RTC_DATA_ATTR uint32_t lastIPAddress;
-RTC_DATA_ATTR char lastSSID[30];
-RTC_DATA_ATTR int UI_BACKGROUND_COLOR = GxEPD_BLACK;
-RTC_DATA_ATTR int UI_FOREGROUND_COLOR = GxEPD_WHITE;
-
 SetTimeZoneScreen setTimeZoneScreen(&Watchy::display,
                                     [](int8_t value)
                                     { gmtOffset = value * 3600; });

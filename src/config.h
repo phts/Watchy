@@ -1,5 +1,9 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef WATCHY_CONFIG_H
+#define WATCHY_CONFIG_H
+
+#include <TimeLib.h>
+#include "bma.h"
+#include "Display.h"
 
 // Versioning
 #define WATCHY_LIB_VER "1.4.14-phts"
@@ -117,5 +121,32 @@
 #define SOFTWARE_VERSION_PATCH 0
 #define HARDWARE_VERSION_MAJOR 1
 #define HARDWARE_VERSION_MINOR 0
+
+typedef struct weatherData
+{
+  int8_t temperature;
+  int16_t weatherConditionCode;
+  bool isMetric;
+  String weatherDescription;
+  bool external;
+  tmElements_t sunrise;
+  tmElements_t sunset;
+} weatherData;
+
+RTC_DATA_ATTR int guiState;
+RTC_DATA_ATTR int menuIndex;
+RTC_DATA_ATTR BMA423 sensor;
+RTC_DATA_ATTR bool WIFI_CONFIGURED;
+RTC_DATA_ATTR bool BLE_CONFIGURED;
+RTC_DATA_ATTR weatherData currentWeather;
+RTC_DATA_ATTR int weatherIntervalCounter = -1;
+RTC_DATA_ATTR long gmtOffset = 0;
+RTC_DATA_ATTR bool alreadyInMenu = true;
+RTC_DATA_ATTR bool USB_PLUGGED_IN = false;
+RTC_DATA_ATTR tmElements_t bootTime;
+RTC_DATA_ATTR uint32_t lastIPAddress;
+RTC_DATA_ATTR char lastSSID[30];
+RTC_DATA_ATTR int UI_BACKGROUND_COLOR = GxEPD_BLACK;
+RTC_DATA_ATTR int UI_FOREGROUND_COLOR = GxEPD_WHITE;
 
 #endif

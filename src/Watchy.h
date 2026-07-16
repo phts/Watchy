@@ -10,11 +10,10 @@
 #include <GxEPD2_BW.h>
 #include <Wire.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
+#include "config.h"
 #include "DSEG7_Classic_Bold_53.h"
 #include "Display.h"
 #include "BLE.h"
-#include "bma.h"
-#include "config.h"
 #include "esp_chip_info.h"
 #ifdef ARDUINO_ESP32S3_DEV
 #include "Watchy32KRTC.h"
@@ -34,17 +33,6 @@
 #else
 #include "WatchyRTC.h"
 #endif
-
-typedef struct weatherData
-{
-  int8_t temperature;
-  int16_t weatherConditionCode;
-  bool isMetric;
-  String weatherDescription;
-  bool external;
-  tmElements_t sunrise;
-  tmElements_t sunset;
-} weatherData;
 
 typedef struct watchySettings
 {
@@ -121,12 +109,5 @@ private:
   weatherData _getWeatherData(String cityID, String lat, String lon, String units, String lang,
                               String url, String apiKey, uint8_t updateInterval);
 };
-
-extern RTC_DATA_ATTR int guiState;
-extern RTC_DATA_ATTR int menuIndex;
-extern RTC_DATA_ATTR BMA423 sensor;
-extern RTC_DATA_ATTR bool WIFI_CONFIGURED;
-extern RTC_DATA_ATTR bool BLE_CONFIGURED;
-extern RTC_DATA_ATTR bool USB_PLUGGED_IN;
 
 #endif

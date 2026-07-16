@@ -2,7 +2,6 @@
 #define SET_TIME_ZONE_SCREEN_H
 
 #include "config.h"
-#include "Display.h"
 
 typedef void (*OnSaveCallback)(int8_t value);
 
@@ -78,7 +77,7 @@ private:
   void render(bool partial = false)
   {
     display->setFullWindow();
-    display->fillScreen(GxEPD_WHITE);
+    display->fillScreen(UI_BACKGROUND_COLOR);
     display->setFont(&FreeMonoBold9pt7b);
 
     int16_t x1, y1;
@@ -125,13 +124,13 @@ private:
         if (i == 0)
         {
           display->getTextBounds(LABELS[i], 0, yPos, &x1, &y1, &w, &h);
-          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
-          display->setTextColor(GxEPD_WHITE);
+          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+          display->setTextColor(UI_BACKGROUND_COLOR);
           display->println(LABELS[i]);
         }
         else
         {
-          display->setTextColor(GxEPD_BLACK);
+          display->setTextColor(UI_FOREGROUND_COLOR);
           display->println(LABELS[i]);
         }
       }
@@ -140,13 +139,13 @@ private:
         if (i == 1)
         {
           display->getTextBounds(LABELS[i], 0, yPos, &x1, &y1, &w, &h);
-          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
-          display->setTextColor(GxEPD_WHITE);
+          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+          display->setTextColor(UI_BACKGROUND_COLOR);
           display->println(LABELS[i]);
         }
         else
         {
-          display->setTextColor(GxEPD_BLACK);
+          display->setTextColor(UI_FOREGROUND_COLOR);
           display->println(LABELS[i]);
         }
       }
@@ -155,13 +154,13 @@ private:
         if (i == MAX_ITEMS_SHOWN - 2)
         {
           display->getTextBounds(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)], 0, yPos, &x1, &y1, &w, &h);
-          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
-          display->setTextColor(GxEPD_WHITE);
+          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+          display->setTextColor(UI_BACKGROUND_COLOR);
           display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
         else
         {
-          display->setTextColor(GxEPD_BLACK);
+          display->setTextColor(UI_FOREGROUND_COLOR);
           display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
       }
@@ -170,13 +169,13 @@ private:
         if (i == MAX_ITEMS_SHOWN - 1)
         {
           display->getTextBounds(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)], 0, yPos, &x1, &y1, &w, &h);
-          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
-          display->setTextColor(GxEPD_WHITE);
+          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+          display->setTextColor(UI_BACKGROUND_COLOR);
           display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
         else
         {
-          display->setTextColor(GxEPD_BLACK);
+          display->setTextColor(UI_FOREGROUND_COLOR);
           display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
       }
@@ -185,13 +184,13 @@ private:
         if (i == 2)
         {
           display->getTextBounds(LABELS[this->selectedItem - 2 + i], 0, yPos, &x1, &y1, &w, &h);
-          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
-          display->setTextColor(GxEPD_WHITE);
+          display->fillRect(x1 - 1, y1 - 10, 200, h + 15, UI_FOREGROUND_COLOR);
+          display->setTextColor(UI_BACKGROUND_COLOR);
           display->println(LABELS[this->selectedItem - 2 + i]);
         }
         else
         {
-          display->setTextColor(GxEPD_BLACK);
+          display->setTextColor(UI_FOREGROUND_COLOR);
           display->println(LABELS[this->selectedItem - 2 + i]);
         }
       }
