@@ -4,27 +4,34 @@
 #include "config.h"
 #include "Display.h"
 
+typedef void (*OnSaveCallback)(int8_t value);
+
+RTC_DATA_ATTR bool isSetTimeZoneScreenActive = false;
+
 class SetTimeZoneScreen
 {
 public:
-  SetTimeZoneScreen(GxEPD2_BW<WatchyDisplay, WatchyDisplay::HEIGHT> *display)
+  SetTimeZoneScreen(GxEPD2_BW<WatchyDisplay, WatchyDisplay::HEIGHT> *display, OnSaveCallback onSaveCallback)
   {
     this->display = display;
+    this->onSaveCallback = onSaveCallback;
   }
 
   void open()
   {
-    this->active = true;
+    isSetTimeZoneScreenActive = true;
     this->render();
   }
 
   void close()
   {
-    this->active = false;
+    isSetTimeZoneScreenActive = false;
   }
 
   void onPressOk()
   {
+    onSaveCallback(VALUES[this->selectedItem]);
+    this->close();
   }
 
   void onPressBack()
@@ -35,9 +42,9 @@ public:
   void onPressUp()
   {
     this->selectedItem--;
-    if (this->selectedItem < this->FIRST_ITEM_INDEX)
+    if (this->selectedItem < FIRST_ITEM_INDEX)
     {
-      this->selectedItem = this->LAST_ITEM_INDEX;
+      this->selectedItem = LAST_ITEM_INDEX;
     }
     this->render(true);
   }
@@ -45,25 +52,27 @@ public:
   void onPressDown()
   {
     this->selectedItem++;
-    if (this->selectedItem > this->LAST_ITEM_INDEX)
+    if (this->selectedItem > LAST_ITEM_INDEX)
     {
-      this->selectedItem = this->FIRST_ITEM_INDEX;
+      this->selectedItem = FIRST_ITEM_INDEX;
     }
     this->render(true);
   }
 
   bool isActive()
   {
-    return this->active;
+    return isSetTimeZoneScreenActive;
   }
 
 private:
-  const byte ITEMS_SIZE = 38;
-  const byte FIRST_ITEM_INDEX = 0;
-  const byte LAST_ITEM_INDEX = ITEMS_SIZE - 1;
+  static const byte ITEMS_SIZE = 27;
+  static const byte FIRST_ITEM_INDEX = 0;
+  static const byte LAST_ITEM_INDEX = ITEMS_SIZE - 1;
+  static constexpr int8_t VALUES[ITEMS_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1};
 
-  bool active = false;
-  byte selectedItem = 0;
+  OnSaveCallback onSaveCallback;
+
+  int8_t selectedItem = 0;
   GxEPD2_BW<WatchyDisplay, WatchyDisplay::HEIGHT> *display;
 
   void render(bool partial = false)
@@ -77,42 +86,31 @@ private:
     int16_t yPos;
 
     const byte MAX_ITEMS_SHOWN = 5;
-    const char *ITEMS[] = {
+    const char *LABELS[ITEMS_SIZE] = {
         "+00:00",
         "+01:00",
         "+02:00",
         "+03:00",
-        "+03:30",
         "+04:00",
-        "+04:30",
         "+05:00",
-        "+05:30",
-        "+05:45",
         "+06:00",
-        "+06:30",
         "+07:00",
         "+08:00",
-        "+08:45",
         "+09:00",
-        "+09:30",
         "+10:00",
-        "+10:30",
         "+11:00",
         "+12:00",
-        "+12:45",
         "+13:00",
         "+14:00",
         "-12:00",
         "-11:00",
         "-10:00",
-        "-09:30",
         "-09:00",
         "-08:00",
         "-07:00",
         "-06:00",
         "-05:00",
         "-04:00",
-        "-03:30",
         "-03:00",
         "-02:00",
         "-01:00"};
@@ -122,79 +120,79 @@ private:
       yPos = MENU_HEIGHT + (MENU_HEIGHT * i);
       display->setCursor(0, yPos);
 
-      if (this->selectedItem == this->FIRST_ITEM_INDEX)
+      if (this->selectedItem == FIRST_ITEM_INDEX)
       {
         if (i == 0)
         {
-          display->getTextBounds(ITEMS[i], 0, yPos, &x1, &y1, &w, &h);
+          display->getTextBounds(LABELS[i], 0, yPos, &x1, &y1, &w, &h);
           display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
           display->setTextColor(GxEPD_WHITE);
-          display->println(ITEMS[i]);
+          display->println(LABELS[i]);
         }
         else
         {
           display->setTextColor(GxEPD_BLACK);
-          display->println(ITEMS[i]);
+          display->println(LABELS[i]);
         }
       }
-      else if (this->selectedItem == this->FIRST_ITEM_INDEX + 1)
+      else if (this->selectedItem == FIRST_ITEM_INDEX + 1)
       {
         if (i == 1)
         {
-          display->getTextBounds(ITEMS[i], 0, yPos, &x1, &y1, &w, &h);
+          display->getTextBounds(LABELS[i], 0, yPos, &x1, &y1, &w, &h);
           display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
           display->setTextColor(GxEPD_WHITE);
-          display->println(ITEMS[i]);
+          display->println(LABELS[i]);
         }
         else
         {
           display->setTextColor(GxEPD_BLACK);
-          display->println(ITEMS[i]);
+          display->println(LABELS[i]);
         }
       }
-      else if (this->selectedItem == this->LAST_ITEM_INDEX - 1)
+      else if (this->selectedItem == LAST_ITEM_INDEX - 1)
       {
         if (i == MAX_ITEMS_SHOWN - 2)
         {
-          display->getTextBounds(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i], 0, yPos, &x1, &y1, &w, &h);
+          display->getTextBounds(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)], 0, yPos, &x1, &y1, &w, &h);
           display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
           display->setTextColor(GxEPD_WHITE);
-          display->println(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i]);
+          display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
         else
         {
           display->setTextColor(GxEPD_BLACK);
-          display->println(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i]);
+          display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
       }
-      else if (this->selectedItem == this->LAST_ITEM_INDEX)
+      else if (this->selectedItem == LAST_ITEM_INDEX)
       {
         if (i == MAX_ITEMS_SHOWN - 1)
         {
-          display->getTextBounds(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i], 0, yPos, &x1, &y1, &w, &h);
+          display->getTextBounds(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)], 0, yPos, &x1, &y1, &w, &h);
           display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
           display->setTextColor(GxEPD_WHITE);
-          display->println(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i]);
+          display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
         else
         {
           display->setTextColor(GxEPD_BLACK);
-          display->println(ITEMS[this->LAST_ITEM_INDEX - MAX_ITEMS_SHOWN - 1 + i]);
+          display->println(LABELS[LAST_ITEM_INDEX - (MAX_ITEMS_SHOWN - 1 - i)]);
         }
       }
       else
       {
         if (i == 2)
         {
-          display->getTextBounds(ITEMS[this->selectedItem - 2 + i], 0, yPos, &x1, &y1, &w, &h);
+          display->getTextBounds(LABELS[this->selectedItem - 2 + i], 0, yPos, &x1, &y1, &w, &h);
           display->fillRect(x1 - 1, y1 - 10, 200, h + 15, GxEPD_BLACK);
           display->setTextColor(GxEPD_WHITE);
-          display->println(ITEMS[this->selectedItem - 2 + i]);
+          display->println(LABELS[this->selectedItem - 2 + i]);
         }
         else
         {
           display->setTextColor(GxEPD_BLACK);
-          display->println(ITEMS[this->selectedItem - 2 + i]);
+          display->println(LABELS[this->selectedItem - 2 + i]);
         }
       }
     }

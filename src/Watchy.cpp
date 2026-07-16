@@ -27,7 +27,9 @@ RTC_DATA_ATTR char lastSSID[30];
 RTC_DATA_ATTR int UI_BACKGROUND_COLOR = GxEPD_BLACK;
 RTC_DATA_ATTR int UI_FOREGROUND_COLOR = GxEPD_WHITE;
 
-SetTimeZoneScreen setTimeZoneScreen(&Watchy::display);
+SetTimeZoneScreen setTimeZoneScreen(&Watchy::display,
+                                    [](int8_t value)
+                                    { gmtOffset = value * 3600; });
 
 void Watchy::init(String datetime)
 {
@@ -160,13 +162,11 @@ void Watchy::handleButtonPress()
   // Menu Button
   if (wakeupBit & MENU_BTN_MASK)
   {
-    if (guiState ==
-        WATCHFACE_STATE)
+    if (guiState == WATCHFACE_STATE)
     { // enter menu state if coming from watch face
       showMenu(menuIndex, false);
     }
-    else if (guiState ==
-             MAIN_MENU_STATE)
+    else if (guiState == MAIN_MENU_STATE)
     { // if already in menu, then select menu item
       switch (menuIndex)
       {
@@ -194,6 +194,14 @@ void Watchy::handleButtonPress()
         break;
       default:
         break;
+      }
+    }
+    else if (setTimeZoneScreen.isActive())
+    {
+      setTimeZoneScreen.onPressOk();
+      if (!setTimeZoneScreen.isActive())
+      {
+        showMenu(menuIndex, false);
       }
     }
   }
@@ -245,6 +253,7 @@ void Watchy::handleButtonPress()
     else if (setTimeZoneScreen.isActive())
     {
       setTimeZoneScreen.onPressUp();
+      return;
     }
   }
   // Down Button
@@ -266,6 +275,7 @@ void Watchy::handleButtonPress()
     else if (setTimeZoneScreen.isActive())
     {
       setTimeZoneScreen.onPressDown();
+      return;
     }
   }
 
@@ -287,9 +297,8 @@ void Watchy::handleButtonPress()
       if (digitalRead(MENU_BTN_PIN) == ACTIVE_LOW)
       {
         lastTimeout = millis();
-        if (guiState ==
-            MAIN_MENU_STATE)
-        { // if already in menu, then select menu item
+        if (guiState == MAIN_MENU_STATE)
+        {
           switch (menuIndex)
           {
           case Watchy::MENU_ITEM_INDEX_ABOUT:
@@ -318,12 +327,19 @@ void Watchy::handleButtonPress()
             break;
           }
         }
+        else if (setTimeZoneScreen.isActive())
+        {
+          setTimeZoneScreen.onPressOk();
+          if (!setTimeZoneScreen.isActive())
+          {
+            showMenu(menuIndex, false);
+          }
+        }
       }
       else if (digitalRead(BACK_BTN_PIN) == ACTIVE_LOW)
       {
         lastTimeout = millis();
-        if (guiState ==
-            MAIN_MENU_STATE)
+        if (guiState == MAIN_MENU_STATE)
         { // exit to watch face if already in menu
           RTC.read(currentTime);
           showWatchFace(false);
@@ -337,12 +353,20 @@ void Watchy::handleButtonPress()
         {
           showMenu(menuIndex, false); // exit to menu if already in app
         }
+        else if (setTimeZoneScreen.isActive())
+        {
+          setTimeZoneScreen.onPressBack();
+          if (!setTimeZoneScreen.isActive())
+          {
+            showMenu(menuIndex, false);
+          }
+        }
       }
       else if (digitalRead(UP_BTN_PIN) == ACTIVE_LOW)
       {
         lastTimeout = millis();
         if (guiState == MAIN_MENU_STATE)
-        { // increment menu index
+        {
           menuIndex--;
           if (menuIndex < 0)
           {
@@ -359,7 +383,7 @@ void Watchy::handleButtonPress()
       {
         lastTimeout = millis();
         if (guiState == MAIN_MENU_STATE)
-        { // decrement menu index
+        {
           menuIndex++;
           if (menuIndex > MENU_LENGTH - 1)
           {
@@ -439,6 +463,9 @@ void Watchy::showAbout()
   display.print(voltage);
   display.println("V");
 
+  display.print("Time zone: ");
+  display.println(gmtOffset / 3600);
+
 #ifndef ARDUINO_ESP32S3_DEV
   display.print("Uptime: ");
   RTC.read(currentTime);
@@ -467,7 +494,7 @@ void Watchy::showAbout()
   {
     display.println("WiFi Not Connected");
   }
-  display.display(false); // full refresh
+  display.display(false);
 
   guiState = APP_STATE;
 }
