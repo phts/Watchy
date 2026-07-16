@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "bma.h"
+
 // Versioning
 #define WATCHY_LIB_VER "1.4.14-phts"
 
@@ -117,5 +119,8 @@
 #define SOFTWARE_VERSION_PATCH 0
 #define HARDWARE_VERSION_MAJOR 1
 #define HARDWARE_VERSION_MINOR 0
+
+extern RTC_DATA_ATTR int UI_BACKGROUND_COLOR;
+extern RTC_DATA_ATTR int UI_FOREGROUND_COLOR;
 
 #endif
